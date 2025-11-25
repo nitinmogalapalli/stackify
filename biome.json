@@ -1,0 +1,112 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.3.7/schema.json",
+	"vcs": {
+		"enabled": false,
+		"clientKind": "git",
+		"useIgnoreFile": false
+	},
+	"files": {
+		"ignoreUnknown": false,
+		"includes": [
+			"**",
+			"!!**/.next",
+			"!!**/.open-next",
+			"!!**/dist",
+			"!!**/.turbo",
+			"!!**/dev-dist",
+			"!!**/.zed",
+			"!!**/.vscode",
+			"!**/routeTree.gen.ts",
+			"!**/src-tauri",
+			"!!**/.nuxt",
+			"!!bts.jsonc",
+			"!!**/.expo",
+			"!!**/.wrangler",
+			"!!**/.alchemy",
+			"!!**/.svelte-kit",
+			"!!**/wrangler.jsonc",
+			"!!**/.source"
+		]
+	},
+	"formatter": {
+		"enabled": true,
+		"indentStyle": "tab",
+		"lineEnding": "auto"
+	},
+	"assist": {
+		"actions": {
+			"source": {
+				"organizeImports": {
+					"level": "on",
+					"options": {
+						"identifierOrder": "natural",
+						"groups": [
+							{ "type": true },
+							{ "source": ["react", "react/**"] },
+							{ "source": ["react-native", "react-native/**"] },
+							{ "source": ["next", "next/**"] },
+							{ "source": ["expo", "expo/**"] },
+							":BLANK_LINE:",
+							":PACKAGE:",
+							":BLANK_LINE:",
+							{ "type": true, "source": ["@repo", "@repo/**"] },
+							":BLANK_LINE:",
+							":ALIAS:",
+							":PATH:"
+						]
+					}
+				}
+			}
+		}
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": true,
+			"correctness": {
+				"useExhaustiveDependencies": "info",
+				"noUnusedVariables": "error"
+			},
+			"nursery": {
+				"useSortedClasses": {
+					"level": "warn",
+					"fix": "safe",
+					"options": {
+						"functions": ["clsx", "cva", "cn"]
+					}
+				},
+				"noMisusedPromises": "warn",
+				"noUnnecessaryConditions": "error"
+			},
+			"style": {
+				"noParameterAssign": "error",
+				"useAsConstAssertion": "error",
+				"useDefaultParameterLast": "error",
+				"useEnumInitializers": "error",
+				"useSelfClosingElements": "error",
+				"useSingleVarDeclarator": "error",
+				"noUnusedTemplateLiteral": "error",
+				"useNumberNamespace": "error",
+				"noInferrableTypes": "error",
+				"noUselessElse": "error",
+				"useImportType": {
+					"level": "warn",
+					"options": {
+						"style": "separatedType"
+					}
+				},
+				"noNonNullAssertion": "error"
+			}
+		}
+	},
+	"javascript": {
+		"formatter": {
+			"quoteStyle": "double"
+		}
+	},
+	"css": {
+		"parser": {
+			"tailwindDirectives": true
+		}
+	}
+}

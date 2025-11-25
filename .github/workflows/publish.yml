@@ -1,0 +1,64 @@
+name: Publish
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+# You can leverage Vercel Remote Caching with Turbo to speed up your builds
+# @link https://turborepo.com/docs/core-concepts/remote-caching#remote-caching-on-vercel-builds
+env:
+  FORCE_COLOR: 3
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup
+        uses: ./.github/setup
+
+      - name: DB Setup
+        run: pnpm run db:migrate
+        env:
+          DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
+
+      - name: Destroy Previous Deployment
+        run: pnpm run destroy
+        env:
+          STAGE: prod
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CLOUDFLARE_EMAIL: ${{ secrets.CLOUDFLARE_EMAIL }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          ALCHEMY_PASSWORD: ${{ secrets.ALCHEMY_PASSWORD }}
+          ALCHEMY_STATE_TOKEN: ${{ secrets.ALCHEMY_STATE_TOKEN }}
+
+      - name: Deploy to Production
+        run: pnpm run deploy
+        env:
+          STAGE: prod
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CLOUDFLARE_EMAIL: ${{ secrets.CLOUDFLARE_EMAIL }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          ALCHEMY_PASSWORD: ${{ secrets.ALCHEMY_PASSWORD }}
+          ALCHEMY_STATE_TOKEN: ${{ secrets.ALCHEMY_STATE_TOKEN }}
+
+          NEXT_PUBLIC_SERVER_URL: ${{vars.PROD_NEXT_PUBLIC_SERVER_URL}}
+          DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
+          CORS_ORIGIN: ${{ vars.PROD_CORS_ORIGIN }}
+          BETTER_AUTH_SECRET: ${{ secrets.PROD_BETTER_AUTH_SECRET }}
+          BETTER_AUTH_URL: ${{ vars.PROD_BETTER_AUTH_URL }}

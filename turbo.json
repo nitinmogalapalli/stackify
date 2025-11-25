@@ -1,0 +1,62 @@
+{
+	"$schema": "https://turbo.build/schema.json",
+	"ui": "tui",
+	"tasks": {
+		"auth:generate": {
+			"cache": false,
+			"interactive": true
+		},
+		"build": {
+			"dependsOn": ["^build"],
+			"inputs": ["$TURBO_DEFAULT$", ".env*"],
+			"outputs": ["dist/**"]
+		},
+		"check-types": {
+			"dependsOn": ["^check-types"],
+			"outputs": [".cache/tsbuildinfo.json"],
+			"outputLogs": "new-only"
+		},
+		"clean": {
+			"cache": false
+		},
+		"//#clean": {
+			"cache": false
+		},
+		"db:generate": {
+			"cache": false,
+			"persistent": true
+		},
+		"db:migrate": {
+			"cache": false,
+			"persistent": true
+		},
+		"db:push": {
+			"cache": false,
+			"persistent": true
+		},
+		"db:studio": {
+			"cache": false,
+			"persistent": true
+		},
+		"deploy": {
+			"cache": false
+		},
+		"destroy": {
+			"cache": false
+		},
+		"dev": {
+			"cache": false,
+			"persistent": true
+		}
+	},
+	"globalEnv": ["CORS_ORIGIN", "BETTER_AUTH_SECRET"],
+	"globalPassThroughEnv": [
+		"DATABASE_URL",
+		"EXPO_PUBLIC_SERVER_URL",
+		"NEXT_PUBLIC_SERVER_URL",
+		"BETTER_AUTH_URL",
+		"NODE_ENV",
+		"CI",
+		"npm_lifecycle_event"
+	]
+}

@@ -1,0 +1,100 @@
+name: Preview
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - closed
+
+concurrency:
+  group: pr-preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+# You can leverage Vercel Remote Caching with Turbo to speed up your builds
+# @link https://turborepo.com/docs/core-concepts/remote-caching#remote-caching-on-vercel-builds
+env:
+  FORCE_COLOR: 3
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+
+jobs:
+  deploy-preview:
+    if: ${{ github.event.action != 'closed' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/setup
+
+      - name: DB Setup
+        uses: neondatabase/create-branch-action@v6
+        id: create-branch
+        with:
+          project_id: ${{ vars.NEON_PROJECT_ID }}
+          branch_name: pr-${{ github.event.pull_request.number }}
+          role: neondb_owner
+          api_key: ${{ secrets.NEON_API_KEY }}
+
+      - run: pnpm run db:migrate
+        env:
+          DATABASE_URL: ${{ steps.create-branch.outputs.db_url }}
+
+      - name: Deploy Preview
+        run: pnpm run deploy --stage pr-${{ github.event.pull_request.number }}
+        env:
+          GITHUB_SHA: ${{ github.event.pull_request.head.sha }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
+          GITHUB_REPOSITORY_NAME: ${{ github.event.repository.name }}
+          PULL_REQUEST: ${{ github.event.pull_request.number }}
+          CLOUDFLARE_EMAIL: ${{ secrets.CLOUDFLARE_EMAIL }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          ALCHEMY_PASSWORD: ${{ secrets.ALCHEMY_PASSWORD }}
+          ALCHEMY_STATE_TOKEN: ${{ secrets.ALCHEMY_STATE_TOKEN }}
+          
+          DATABASE_URL: ${{ steps.create-branch.outputs.db_url }}
+          NEXT_PUBLIC_SERVER_URL: https://stackify-server-pr-${{ github.event.pull_request.number }}.mogalapallinitin-cloudflare.workers.dev
+          CORS_ORIGIN: https://stackify-web-pr-${{ github.event.pull_request.number }}.mogalapallinitin-cloudflare.workers.dev
+          BETTER_AUTH_URL: https://stackify-server-pr-${{ github.event.pull_request.number }}.mogalapallinitin-cloudflare.workers.dev
+          BETTER_AUTH_SECRET: ${{ secrets.PR_BETTER_AUTH_SECRET }}
+
+
+  cleanup-preview:
+    if: ${{ github.event.action == 'closed' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/setup
+
+      - name: DB Teardown
+        uses: neondatabase/delete-branch-action@v3
+        with:
+          project_id: ${{ vars.NEON_PROJECT_ID }}
+          api_key: ${{ secrets.NEON_API_KEY }}
+          branch: pr-${{ github.event.pull_request.number }}
+
+      - name: Cleanup Preview
+        run: pnpm run destroy --stage pr-${{ github.event.pull_request.number }}
+        env:
+          GITHUB_SHA: ${{ github.event.pull_request.head.sha }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
+          GITHUB_REPOSITORY_NAME: ${{ github.event.repository.name }}
+          PULL_REQUEST: ${{ github.event.pull_request.number }}
+          CLOUDFLARE_EMAIL: ${{ secrets.CLOUDFLARE_EMAIL }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          ALCHEMY_PASSWORD: ${{ secrets.ALCHEMY_PASSWORD }}
+          ALCHEMY_STATE_TOKEN: ${{ secrets.ALCHEMY_STATE_TOKEN }}

@@ -1,0 +1,31 @@
+{
+	"name": "@repo/api",
+	"type": "module",
+	"exports": {
+		".": {
+			"default": "./src/index.ts"
+		},
+		"./*": {
+			"default": "./src/*.ts"
+		}
+	},
+	"scripts": {
+		"clean": "git clean -xdf node_modules"
+	},
+	"dependencies": {
+		"@repo/auth": "workspace:*",
+		"@repo/db": "workspace:*",
+		"@trpc/client": "catalog:",
+		"@trpc/server": "catalog:",
+		"dotenv": "catalog:",
+		"drizzle-orm": "catalog:",
+		"hono": "catalog:",
+		"zod": "catalog:"
+	},
+	"devDependencies": {
+		"@repo/config": "workspace:*"
+	},
+	"peerDependencies": {
+		"typescript": "catalog:"
+	}
+}

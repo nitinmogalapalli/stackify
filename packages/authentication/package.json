@@ -1,0 +1,30 @@
+{
+	"name": "@repo/auth",
+	"type": "module",
+	"exports": {
+		".": {
+			"default": "./src/index.ts"
+		},
+		"./*": {
+			"default": "./src/*.ts"
+		}
+	},
+	"scripts": {
+		"auth:generate": "dotenv -e ../../apps/server/.env -- pnpm dlx @better-auth/cli generate --config src/index.ts --output ../database/src/schema/auth.ts",
+		"clean": "git clean -xdf node_modules"
+	},
+	"dependencies": {
+		"@better-auth/expo": "catalog:",
+		"@repo/db": "workspace:*",
+		"better-auth": "catalog:",
+		"dotenv": "catalog:",
+		"zod": "catalog:"
+	},
+	"devDependencies": {
+		"@repo/config": "workspace:*",
+		"dotenv-cli": "^10.0.0"
+	},
+	"peerDependencies": {
+		"typescript": "catalog:"
+	}
+}
